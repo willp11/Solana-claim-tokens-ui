@@ -1,0 +1,22 @@
+.App {
+  text-align: center;
+}
+
+.WalletWrapper {
+  width: 350px;
+  margin: 0 auto;
+}
+
+.WalletWrapper button {
+  margin: 0 auto;
+}
+
+input {
+  text-align: center;
+}
+
+@media only screen and (max-width: 350px) {
+  .WalletWrapper {
+    width: 350px;
+  }
+}
