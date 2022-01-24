@@ -47,6 +47,4 @@ export const extendBorsh = () => {
   };
 };
 
-// pointsSpent: new BN(decodedState.pointsSpent, 10, "le").toNumber(),
-
 extendBorsh();

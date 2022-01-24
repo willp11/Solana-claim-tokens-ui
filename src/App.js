@@ -16,6 +16,7 @@ import {
 import { clusterApiUrl } from '@solana/web3.js';
 
 import {CreateDistributor} from './components/CreateDistributor/CreateDistributor';
+import {ClaimTokens} from './components/ClaimTokens/ClaimTokens';
 
 // Default styles that can be overridden by your app
 require('@solana/wallet-adapter-react-ui/styles.css');
@@ -44,6 +45,7 @@ function App() {
                     <WalletMultiButton />
                     <WalletDisconnectButton />
                     <CreateDistributor />
+                    <ClaimTokens />
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>

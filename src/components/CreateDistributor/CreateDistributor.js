@@ -1,9 +1,11 @@
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { Keypair, PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
 import { useState } from 'react';
 import { Token, TOKEN_PROGRAM_ID, AccountLayout } from '@solana/spl-token';
-import { createDistributor, CLAIM_TOKEN_PROGRAM_SCHEMA, MAX_DISTRIBUTOR_ACCOUNT_LENGTH, DistributorState } from '../../util/createDistributor';
+import { createDistributor} from '../../util/createDistributor';
+import { MAX_DISTRIBUTOR_ACCOUNT_LENGTH, DistributorState } from '../../util/state';
+import { CLAIM_TOKEN_PROGRAM_SCHEMA } from '../../util/schema';
 import { deserializeUnchecked } from 'borsh';
 import { useSelector } from 'react-redux';
 
@@ -36,6 +38,8 @@ export const CreateDistributor = () => {
 
             const transaction = new Transaction();
 
+            const LAMPORTS_PER_TOKEN = LAMPORTS_PER_SOL;
+
             // ACCOUNTS
             const initializerAccount = publicKey;
 
@@ -61,7 +65,14 @@ export const CreateDistributor = () => {
             });
             const initRewardAccountIx = Token.createInitAccountInstruction(TOKEN_PROGRAM_ID, tokenMintAccountPubkey, rewardTokenAccount.publicKey, publicKey);
             const transferTokensToRewardAccIx = Token
-                .createTransferInstruction(TOKEN_PROGRAM_ID, rewardTokenAccountSrc, rewardTokenAccount.publicKey, publicKey, [], formData.rewardAmountTotal);    
+                .createTransferInstruction(
+                    TOKEN_PROGRAM_ID, 
+                    rewardTokenAccountSrc, 
+                    rewardTokenAccount.publicKey, 
+                    publicKey, 
+                    [], 
+                    formData.rewardAmountTotal
+                );    
                 
             transaction.add(
                 createDistributorAccountIx,
@@ -73,6 +84,8 @@ export const CreateDistributor = () => {
             const collectionCreatorAccount = new PublicKey(formData.collectionCreatorAccount);
 
             const startTs = new Date(formData.startTs).getTime()/1000;
+
+            if (formData.symbol === null) formData.symbol = ""; 
 
             const createDistributorIx = await createDistributor(
                 formData.rewardAmountTotal,
@@ -107,6 +120,7 @@ export const CreateDistributor = () => {
             distributorDataNew.amountClaimed = distributorData.amountClaimed.toNumber();
             distributorDataNew.rewardAmountPerNft = distributorData.rewardAmountPerNft.toNumber();
             distributorDataNew.rewardAmountTotal = distributorData.rewardAmountTotal.toNumber();
+            distributorDataNew.publicKey = distributorAccount.publicKey.toBase58();
 
             console.log(distributorDataNew);
 
@@ -119,7 +133,7 @@ export const CreateDistributor = () => {
         <div>
             <h2>Create Distributor</h2>
             <input type="text" placeholder="Collection Creator Account" name="collectionCreatorAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Reward Token Account" name="rewardTokenAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <input type="text" placeholder="Reward Token Source" name="rewardTokenAccount" onChange={(e) => updateForm(e)}/> <br/>
             <input type="text" placeholder="Reward Token Mint" name="rewardTokenMint" onChange={(e) => updateForm(e)}/> <br/>
             <input type="number" placeholder="Reward Amount Total" name="rewardAmountTotal" onChange={(e) => updateForm(e)}/> <br/>
             <input type="number" placeholder="Reward Amount Per NFT" name="rewardAmountPerNft" onChange={(e) => updateForm(e)}/> <br/>

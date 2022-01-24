@@ -1,24 +1,9 @@
 import { PublicKey, TransactionInstruction, SystemProgram, SYSVAR_RENT_PUBKEY } from "@solana/web3.js";
 import { serialize } from 'borsh';
+import { toPublicKey } from "./schema";
+
 export * from './borsh';
-
 export type StringPublicKey = string;
-
-const PubKeysInternedMap = new Map<string, PublicKey>();
-
-export const toPublicKey = (key: string | PublicKey) => {
-  if (typeof key !== 'string') {
-    return key;
-  }
-
-  let result = PubKeysInternedMap.get(key);
-  if (!result) {
-    result = new PublicKey(key);
-    PubKeysInternedMap.set(key, result);
-  }
-
-  return result;
-};
 
 class CreateMetadataArgs {
   instruction: number = 0;
