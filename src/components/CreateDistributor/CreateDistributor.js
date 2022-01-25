@@ -8,6 +8,7 @@ import { MAX_DISTRIBUTOR_ACCOUNT_LENGTH, DistributorState } from '../../util/sta
 import { CLAIM_TOKEN_PROGRAM_SCHEMA } from '../../util/schema';
 import { deserializeUnchecked } from 'borsh';
 import { useSelector } from 'react-redux';
+import { findAssociatedTokenAddress } from '../../util/findAssociatedTokenAddress';
 
 export const CreateDistributor = () => {
     const { connection } = useConnection();
@@ -16,12 +17,12 @@ export const CreateDistributor = () => {
     const programId = useSelector(state => new PublicKey(state.programId));
 
     const [formData, updateFormData] = useState({
-        collectionCreatorAccount: null,
-        rewardTokenAccount: null,
         rewardTokenMint: null,
-        rewardAmountTotal: null,
+        decimals: null,
+        numberNFTs: null,
         rewardAmountPerNft: null,
         startTs: null,
+        collectionCreatorAccount: null,
         symbol: null
     });
 
@@ -38,8 +39,12 @@ export const CreateDistributor = () => {
 
             const transaction = new Transaction();
 
-            const TOKEN_DECIMALS = 2;
-            const LAMPORTS_PER_TOKEN = 10**TOKEN_DECIMALS;
+            let LAMPORTS_PER_TOKEN = 10**formData.decimals;
+            if (formData.decimals === null) {
+                LAMPORTS_PER_TOKEN = LAMPORTS_PER_SOL;
+            }
+            const rewardAmountTotal = formData.numberNFTs * formData.rewardAmountPerNft * LAMPORTS_PER_TOKEN;
+            const rewardAmountPerNft = formData.rewardAmountPerNft * LAMPORTS_PER_TOKEN;
 
             // ACCOUNTS
             const initializerAccount = publicKey;
@@ -53,9 +58,9 @@ export const CreateDistributor = () => {
                 programId: programId
             });
 
-            const rewardTokenAccountSrc = new PublicKey(formData.rewardTokenAccount);
-
             const tokenMintAccountPubkey = new PublicKey(formData.rewardTokenMint);
+            const rewardTokenAccountSrc = await findAssociatedTokenAddress(publicKey, tokenMintAccountPubkey);
+
             const rewardTokenAccount = new Keypair();
             const createRewardTokenAccountIx = SystemProgram.createAccount({
                 programId: TOKEN_PROGRAM_ID,
@@ -72,7 +77,7 @@ export const CreateDistributor = () => {
                     rewardTokenAccount.publicKey, 
                     publicKey, 
                     [], 
-                    formData.rewardAmountTotal * LAMPORTS_PER_TOKEN
+                    rewardAmountTotal
                 );    
                 
             transaction.add(
@@ -89,8 +94,8 @@ export const CreateDistributor = () => {
             if (formData.symbol === null) formData.symbol = ""; 
 
             const createDistributorIx = await createDistributor(
-                formData.rewardAmountTotal * LAMPORTS_PER_TOKEN,
-                formData.rewardAmountPerNft * LAMPORTS_PER_TOKEN,
+                rewardAmountTotal,
+                rewardAmountPerNft,
                 startTs,
                 formData.symbol,
                 initializerAccount,
@@ -133,12 +138,12 @@ export const CreateDistributor = () => {
     return (
         <div>
             <h2>Create Distributor</h2>
-            <label>Reward Token Account</label> <br/>
-            <input type="text" name="rewardTokenAccount" onChange={(e) => updateForm(e)}/> <br/>
             <label>Reward Token Mint</label> <br/>
             <input type="text" name="rewardTokenMint" onChange={(e) => updateForm(e)}/> <br/>
-            <label>Reward Amount Total</label> <br/>
-            <input type="number" name="rewardAmountTotal" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Reward Token Decimals</label> <br/>
+            <input type="number" name="decimals" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Number of NFTs</label> <br/>
+            <input type="number" name="numberNFTs" onChange={(e) => updateForm(e)}/> <br/>
             <label>Reward Amount Per NFT</label> <br/>
             <input type="number" name="rewardAmountPerNft" onChange={(e) => updateForm(e)}/> <br/>
             <label>Start Time</label> <br/>

@@ -60,8 +60,6 @@ export async function createDistributor(
       programId: toPublicKey(programId),
       data: txnData,
     });
-
-    console.log(ix);
   
     return ix;
   }

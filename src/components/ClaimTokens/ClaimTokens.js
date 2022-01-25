@@ -18,9 +18,8 @@ export const ClaimTokens = () => {
 
     const [formData, updateFormData] = useState({
         distributorStateAccount: null,
-        distributorRewardAccount: null,
-        rewardMintAccount: null,
-        claimantNFTAccount: null,
+        // distributorRewardAccount: null,
+        // rewardMintAccount: null,
         NFTMintAccount: null
     });
 
@@ -42,17 +41,22 @@ export const ClaimTokens = () => {
             // ACCOUNTS
             const initializerAccount = publicKey;
             const distributorStateAccount = new PublicKey(formData.distributorStateAccount);
-            const distributorRewardAccount = new PublicKey(formData.distributorRewardAccount);
-            const rewardMintAccount = new PublicKey(formData.rewardMintAccount);
-            const claimantNFTAccount = new PublicKey(formData.claimantNFTAccount);
+
+            // get and deserialize distributor state data
+            const distributorStateAccountInfo = await connection.getAccountInfo(distributorStateAccount, "confirmed");
+            const distributorDataDeserialized = deserializeUnchecked(CLAIM_TOKEN_PROGRAM_SCHEMA, DistributorState, distributorStateAccountInfo.data);
+
+            const distributorRewardAccount = new PublicKey(distributorDataDeserialized.rewardTokenAccount);
+            const rewardMintAccount = new PublicKey(distributorDataDeserialized.rewardMint);
+
             const NFTMintAccount = new PublicKey(formData.NFTMintAccount);
+            // get claimant NFT account - associated account of NFT mint
+            const claimantNFTAccount = await findAssociatedTokenAddress(publicKey, NFTMintAccount);
 
             // get claimant reward account - associated account of reward mint 
             const claimantRewardAccount = await findAssociatedTokenAddress(publicKey, rewardMintAccount);
-
             // check if account exists already, if not create account
             const claimantAssociatedAccount = await connection.getAccountInfo(claimantRewardAccount, "confirmed");
-            console.log(claimantAssociatedAccount);
             if (claimantAssociatedAccount === null) {
                 const createAssociatedTokenAccountIx = new TransactionInstruction({
                     programId: new PublicKey(ASSOCIATED_TOKEN_PROGRAM_ID),
@@ -124,12 +128,10 @@ export const ClaimTokens = () => {
             <h2>Claim Tokens</h2>
             <label>Distributor State Account</label> <br/>
             <input type="text" name="distributorStateAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <label>Distributor Reward Account</label> <br/>
+            {/* <label>Distributor Reward Account</label> <br/>
             <input type="text" name="distributorRewardAccount" onChange={(e) => updateForm(e)}/> <br/>
             <label>Reward Mint Account</label> <br/>
-            <input type="text" name="rewardMintAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <label>Claimant NFT Account</label> <br/>
-            <input type="text" name="claimantNFTAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <input type="text" name="rewardMintAccount" onChange={(e) => updateForm(e)}/> <br/> */}
             <label>NFT Mint Account</label> <br/>
             <input type="text" name="NFTMintAccount" onChange={(e) => updateForm(e)}/> <br/>
             <button onClick={onClick} disabled={!publicKey}>

@@ -14,8 +14,7 @@ export const CreateNFT = () => {
     const [formData, updateFormData] = useState({
         name: null,
         symbol: null,
-        jsonUri: null,
-        imgUri: null
+        jsonUri: null
     });
 
     const updateForm = (e) => {
@@ -98,7 +97,7 @@ export const CreateNFT = () => {
             formData.name,
             formData.symbol,
             formData.jsonUri,
-            200,
+            0,
             [publicKey.toBase58()],
             // metadata args
             publicKey.toBase58(),
@@ -134,8 +133,6 @@ export const CreateNFT = () => {
             <input type="text" name="symbol" onChange={(e)=>updateForm(e)}/> <br/>
             <label>JSON URI</label> <br/>
             <input type="text" name="jsonUri" onChange={(e)=>updateForm(e)}/> <br />
-            <label>IMG URI</label> <br/>
-            <input type="text" name="imgUri" onChange={(e)=>updateForm(e)}/> <br />
             <button onClick={onClick} disabled={!publicKey}>
                 Create NFT
             </button>
