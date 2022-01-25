@@ -122,11 +122,16 @@ export const ClaimTokens = () => {
     return (
         <div>
             <h2>Claim Tokens</h2>
-            <input type="text" placeholder="Distributor State Account" name="distributorStateAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Distributor Reward Account" name="distributorRewardAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Reward Mint Account" name="rewardMintAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Claimant NFT account" name="claimantNFTAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="NFT mint account" name="NFTMintAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Distributor State Account</label> <br/>
+            <input type="text" name="distributorStateAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Distributor Reward Account</label> <br/>
+            <input type="text" name="distributorRewardAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Reward Mint Account</label> <br/>
+            <input type="text" name="rewardMintAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Claimant NFT Account</label> <br/>
+            <input type="text" name="claimantNFTAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>NFT Mint Account</label> <br/>
+            <input type="text" name="NFTMintAccount" onChange={(e) => updateForm(e)}/> <br/>
             <button onClick={onClick} disabled={!publicKey}>
                 Claim Tokens
             </button>

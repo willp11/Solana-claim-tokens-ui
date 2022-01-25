@@ -128,10 +128,14 @@ export const CreateNFT = () => {
     return (
         <div>
             <h2>Create NFT</h2>
-            <input type="text" placeholder="NFT name" name="name" onChange={(e)=>updateForm(e)}/> <br/>
-            <input type="text" placeholder="NFT symbol" name="symbol" onChange={(e)=>updateForm(e)}/> <br/>
-            <input type="text" placeholder="JSON URI" name="jsonUri" onChange={(e)=>updateForm(e)}/> <br />
-            <input type="text" placeholder="Img URI" name="imgUri" onChange={(e)=>updateForm(e)}/> <br />
+            <label>NFT Name</label> <br/>
+            <input type="text" name="name" onChange={(e)=>updateForm(e)}/> <br/>
+            <label>NFT Symbol</label> <br/>
+            <input type="text" name="symbol" onChange={(e)=>updateForm(e)}/> <br/>
+            <label>JSON URI</label> <br/>
+            <input type="text" name="jsonUri" onChange={(e)=>updateForm(e)}/> <br />
+            <label>IMG URI</label> <br/>
+            <input type="text" name="imgUri" onChange={(e)=>updateForm(e)}/> <br />
             <button onClick={onClick} disabled={!publicKey}>
                 Create NFT
             </button>

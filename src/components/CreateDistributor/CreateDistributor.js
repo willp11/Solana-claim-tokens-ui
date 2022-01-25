@@ -133,13 +133,20 @@ export const CreateDistributor = () => {
     return (
         <div>
             <h2>Create Distributor</h2>
-            <input type="text" placeholder="Collection Creator Account" name="collectionCreatorAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Reward Token Source" name="rewardTokenAccount" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Reward Token Mint" name="rewardTokenMint" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="number" placeholder="Reward Amount Total" name="rewardAmountTotal" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="number" placeholder="Reward Amount Per NFT" name="rewardAmountPerNft" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Reward Token Account</label> <br/>
+            <input type="text" name="rewardTokenAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Reward Token Mint</label> <br/>
+            <input type="text" name="rewardTokenMint" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Reward Amount Total</label> <br/>
+            <input type="number" name="rewardAmountTotal" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Reward Amount Per NFT</label> <br/>
+            <input type="number" name="rewardAmountPerNft" onChange={(e) => updateForm(e)}/> <br/>
+            <label>Start Time</label> <br/>
             <input type="datetime-local" name="startTs" onChange={(e) => updateForm(e)}/> <br/>
-            <input type="text" placeholder="Symbol" name="symbol" onChange={(e) => updateForm(e)}/> <br/>
+            <label>NFT Collection Creator Account</label> <br/>
+            <input type="text" name="collectionCreatorAccount" onChange={(e) => updateForm(e)}/> <br/>
+            <label>NFT Collection Symbol</label> <br/>
+            <input type="text" name="symbol" onChange={(e) => updateForm(e)}/> <br/>
             <button onClick={onClick} disabled={!publicKey}>
                 Create Distributor
             </button>
