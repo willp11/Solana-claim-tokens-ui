@@ -38,7 +38,8 @@ export const CreateDistributor = () => {
 
             const transaction = new Transaction();
 
-            const LAMPORTS_PER_TOKEN = LAMPORTS_PER_SOL;
+            const TOKEN_DECIMALS = 2;
+            const LAMPORTS_PER_TOKEN = 10**TOKEN_DECIMALS;
 
             // ACCOUNTS
             const initializerAccount = publicKey;
@@ -71,7 +72,7 @@ export const CreateDistributor = () => {
                     rewardTokenAccount.publicKey, 
                     publicKey, 
                     [], 
-                    formData.rewardAmountTotal
+                    formData.rewardAmountTotal * LAMPORTS_PER_TOKEN
                 );    
                 
             transaction.add(
@@ -88,8 +89,8 @@ export const CreateDistributor = () => {
             if (formData.symbol === null) formData.symbol = ""; 
 
             const createDistributorIx = await createDistributor(
-                formData.rewardAmountTotal,
-                formData.rewardAmountPerNft,
+                formData.rewardAmountTotal * LAMPORTS_PER_TOKEN,
+                formData.rewardAmountPerNft * LAMPORTS_PER_TOKEN,
                 startTs,
                 formData.symbol,
                 initializerAccount,

@@ -1,6 +1,7 @@
 import { WalletNotConnectedError } from '@solana/wallet-adapter-base';
 import { useConnection, useWallet } from '@solana/wallet-adapter-react';
-import { PublicKey, SystemProgram, Transaction, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import { PublicKey, SystemProgram, Transaction, SYSVAR_RENT_PUBKEY, TransactionInstruction } from "@solana/web3.js";
+import { TOKEN_PROGRAM_ID, ASSOCIATED_TOKEN_PROGRAM_ID } from '@solana/spl-token';
 import { useState } from 'react';
 import { CLAIM_TOKEN_PROGRAM_SCHEMA } from '../../util/schema';
 import { DistributorState } from '../../util/state';
@@ -49,11 +50,31 @@ export const ClaimTokens = () => {
             // get claimant reward account - associated account of reward mint 
             const claimantRewardAccount = await findAssociatedTokenAddress(publicKey, rewardMintAccount);
 
+            // check if account exists already, if not create account
+            const claimantAssociatedAccount = await connection.getAccountInfo(claimantRewardAccount, "confirmed");
+            console.log(claimantAssociatedAccount);
+            if (claimantAssociatedAccount === null) {
+                const createAssociatedTokenAccountIx = new TransactionInstruction({
+                    programId: new PublicKey(ASSOCIATED_TOKEN_PROGRAM_ID),
+                    keys: [
+                        { pubkey: publicKey, isSigner: true, isWritable: true },
+                        { pubkey: claimantRewardAccount, isSigner: false, isWritable: true },
+                        { pubkey: publicKey, isSigner: false, isWritable: false },
+                        { pubkey: rewardMintAccount, isSigner: false, isWritable: false },
+                        { pubkey: SystemProgram.programId, isSigner: false, isWritable: false},
+                        { pubkey: TOKEN_PROGRAM_ID, isSigner: false, isWritable: false},
+                        { pubkey: SYSVAR_RENT_PUBKEY, isSigner: false, isWritable: false }
+                    ],
+                    data: []
+                });
+                transaction.add(createAssociatedTokenAccountIx);
+            }
+
             // get pda account = "distributor" + distributor state pubkey
             const PDA = await PublicKey.findProgramAddress([Buffer.from("distributor"), distributorStateAccount.toBuffer()], programId);
 
             // get account seed = nft mint pubkey as string - write receivedTokens = True to this account
-            const proofOfReceiptPDA = await PublicKey.findProgramAddress([Buffer.from("claimed"), NFTMintAccount.toBuffer()], programId);
+            const proofOfReceiptPDA = await PublicKey.findProgramAddress([Buffer.from("claimed"), NFTMintAccount.toBuffer(), distributorStateAccount.toBuffer()], programId);
 
             // get metadata account derived from NFTMintAccount
             const metadataProgramId = new PublicKey("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");
@@ -78,12 +99,7 @@ export const ClaimTokens = () => {
             let { blockhash } = await connection.getRecentBlockhash();
             transaction.recentBlockhash = blockhash;
             transaction.feePayer = publicKey;
-
-            console.log(transaction);
-
             const signature = await sendTransaction(transaction, connection);
-
-            console.log(signature);
 
             await connection.confirmTransaction(signature, 'confirmed');
 
